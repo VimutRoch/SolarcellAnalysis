@@ -1,7 +1,8 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:solarcellanalysis/models/banner_model.dart';
@@ -11,18 +12,20 @@ import 'package:solarcellanalysis/models/menu_model.dart';
 import 'package:solarcellanalysis/models/overview_model.dart';
 import 'package:solarcellanalysis/models/site_current_power_flow_model.dart';
 import 'package:solarcellanalysis/models/site_model.dart';
+import 'package:solarcellanalysis/states/advertisment.dart';
 import 'package:solarcellanalysis/states/check_pin_code.dart';
+import 'package:solarcellanalysis/states/client_info.dart';
+import 'package:solarcellanalysis/states/contact_us.dart';
+import 'package:solarcellanalysis/states/enviromments.dart';
+import 'package:solarcellanalysis/states/mlm.dart';
+import 'package:solarcellanalysis/states/site_details.dart';
 import 'package:solarcellanalysis/utility/my_constant.dart';
 import 'package:solarcellanalysis/utility/my_dialog.dart';
-import 'package:solarcellanalysis/widgets/show_button.dart';
 import 'package:solarcellanalysis/widgets/show_card.dart';
 import 'package:solarcellanalysis/widgets/show_image.dart';
 import 'package:solarcellanalysis/widgets/show_progress.dart';
-import 'package:solarcellanalysis/widgets/show_signout.dart';
 import 'package:solarcellanalysis/widgets/show_text.dart';
-import 'package:url_launcher/link.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:solarcellanalysis/states/router.dart';
 
 class MainHome extends StatefulWidget {
   const MainHome({
@@ -61,7 +64,6 @@ class _MainHomeState extends State<MainHome> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     readData();
     setupMenu();
@@ -168,7 +170,7 @@ class _MainHomeState extends State<MainHome> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: load
-          ? ShowProgress()
+          ? const ShowProgress()
           : LayoutBuilder(builder: (context, constraints) {
               return SingleChildScrollView(
                 child: Column(
@@ -177,8 +179,6 @@ class _MainHomeState extends State<MainHome> {
                     newPowerLoadGrid(constraints),
                     newPowerFlow(constraints),
                     newBanner(constraints),
-
-
                     newMaintenance3(constraints),
                     newMaintenance4(constraints),
                     // newMaintenance2(
@@ -271,23 +271,37 @@ class _MainHomeState extends State<MainHome> {
     return Stack(
       children: [
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            ShowCard(
-              size: Constraints.maxWidth * 0.33,
-              label: siteCurrentPowerFlow == null
-                  ? ''
-                  : '${siteCurrentPowerFlow!.pv.currentPower} kW',
-              pathImage: 'images/current_power.png',
+            Column(
+              children: [
+                ShowCard(
+                  size: Constraints.maxWidth * 0.33,
+                  label: siteCurrentPowerFlow == null
+                      ? ''
+                      : '${siteCurrentPowerFlow!.pv.currentPower} kW',
+                  pathImage: 'images/current_power.png',
+                ),
+                ShowCard(
+                  size: Constraints.maxWidth * 0.33,
+                  label: siteCurrentPowerFlow == null
+                      ? ''
+                      : '0 kW',
+                  pathImage: 'images/batter0.png',
+                ),
+              ],
             ),
             ShowCard(
                 size: Constraints.maxWidth * 0.33,
+                height: Constraints.maxWidth * 0.66,
                 label: siteCurrentPowerFlow == null
                     ? ''
                     : '${siteCurrentPowerFlow!.load.currentPower} ${siteCurrentPowerFlow!.unit}',
                 pathImage: 'images/load.png'),
             ShowCard(
                 size: Constraints.maxWidth * 0.33,
+                height: Constraints.maxWidth * 0.66,
                 label: siteCurrentPowerFlow == null
                     ? ''
                     : '${siteCurrentPowerFlow!.grid.currentPower} ${siteCurrentPowerFlow!.unit}',
@@ -313,54 +327,85 @@ class _MainHomeState extends State<MainHome> {
       ],
     );
   }
-Widget newMaintenance3(BoxConstraints Constraints) {
+
+  Widget newMaintenance3(BoxConstraints constraints) {
     return Stack(children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          ShowCard2(
-            size: Constraints.maxWidth * 0.33,
-            label: siteCurrentPowerFlow == null
-                ? ''
-                : 'Client Info',
-            pathImage: 'images/info.png',
+          InkWell(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SiteDetail(),
+                )),
+            child: ShowCard2(
+              size: constraints.maxWidth * 0.33,
+              label: 'Client Info',
+              pathImage: 'images/info.png',
+            ),
           ),
-          ShowCard2(
-              size: Constraints.maxWidth * 0.33,
-              label: siteCurrentPowerFlow == null
-                  ? ''
-                  : 'Contact Us',
-              pathImage: 'images/contact.png'),
-          ShowCard2(
-              size: Constraints.maxWidth * 0.33,
-              label: siteCurrentPowerFlow == null ? '' : 'MLM',
-              pathImage: 'images/MLM.png'),
+          InkWell(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ContactUs(
+                    datas: datas,
+                  ),
+                )),
+            child: ShowCard2(
+                size: constraints.maxWidth * 0.33,
+                label: 'Contact Us',
+                pathImage: 'images/contact.png'),
+          ),
+          InkWell(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Mlm(),
+                )),
+            child: ShowCard2(
+                size: constraints.maxWidth * 0.33,
+                label: 'MLM',
+                pathImage: 'images/MLM.png'),
+          ),
         ],
       ),
     ]);
   }
-  Widget newMaintenance4(BoxConstraints Constraints) {
+
+  Widget newMaintenance4(BoxConstraints constraints) {
     return Stack(children: [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          ShowCard2(
-            size: Constraints.maxWidth * 0.33,
-            label: siteCurrentPowerFlow == null
-                ? ''
-                : 'Advertistment',
-            pathImage: 'images/ads.png',
+          InkWell(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Advertistment(),
+                )),
+            child: ShowCard2(
+              size: constraints.maxWidth * 0.33,
+              label: 'Advertistment',
+              pathImage: 'images/ads.png',
+            ),
           ),
           ShowCard2(
-              size: Constraints.maxWidth * 0.33,
-              label: siteCurrentPowerFlow == null
-                  ? ''
-                  : 'Settings',
+              size: constraints.maxWidth * 0.33,
+              label: 'Settings',
               pathImage: 'images/ma1.png'),
-          ShowCard2(
-              size: Constraints.maxWidth * 0.33,
-              label: siteCurrentPowerFlow == null ? '' : 'Environments',
-              pathImage: 'images/tree.png'),
+          InkWell(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Environments(),
+                )),
+            child: ShowCard2(
+                size: constraints.maxWidth * 0.33,
+                label: 'Environments',
+                pathImage: 'images/tree.png'),
+          ),
         ],
       ),
     ]);
@@ -423,7 +468,7 @@ Widget newMaintenance3(BoxConstraints Constraints) {
   //     ),
   //   );
   // }
-  
+
   SizedBox newPowerFlow(BoxConstraints constraints) {
     return SizedBox(
       height: constraints.maxWidth * 0.25,

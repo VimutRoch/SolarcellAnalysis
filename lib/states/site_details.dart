@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:solarcellanalysis/widgets/show_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -53,6 +53,14 @@ class _SiteDetailState extends State<SiteDetail> {
         foregroundColor: Colors.black,
         backgroundColor: Colors.white,
         title: Text(detailsModel == null ? '' : detailsModel!.name),
+        actions: [
+          SizedBox(
+            child: Padding(
+                padding: const EdgeInsets.only(right: 7),
+                child: ShowImage(path: 'images/logo.png')),
+            width: 48,
+          )
+        ],
       ),
       body: load
           ? const ShowProgress()
@@ -76,6 +84,9 @@ class _SiteDetailState extends State<SiteDetail> {
           newDivider(),
           createWidget(
               'Installed Date', detailsModel!.installationDate, constraints),
+          newDivider(),
+           createWidget(
+              'Last Warranty Date', detailsModel!.installationDate, constraints),
           newDivider(),
           createWidget(
               'Last Updated', detailsModel!.lastUpdateTime, constraints),
